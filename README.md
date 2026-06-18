@@ -1,16 +1,15 @@
 # ai-skills
 
-Reusable AI skills for Copilot, Claude, Cursor, OpenCode, Codex, Gemini, Windsurf, etc.
-
-An [apm](https://github.com/microsoft/apm) (Agent Package Manager) package of
-agent **skills**, shared across all my projects.
+[@lithiumtoast](https://github.com/lithiumtoast)'s reusable AI agent skills, packaged with [apm](https://github.com/microsoft/apm) (Agent Package Manager), portable across Claude, Copilot, Cursor, and more.
 
 ## Layout
 
 ```
 ai-skills/
-├── apm.yml                       # package manifest (includes: auto)
+├── apm.yml                       # package manifest (type: hybrid, includes: auto)
 └── .apm/
+    ├── instructions/             # always-on house rules, compiled into AGENTS.md
+    │   └── <name>.instructions.md
     └── skills/
         └── <skill-name>/
             ├── SKILL.md          # required; frontmatter name MUST match folder

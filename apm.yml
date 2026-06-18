@@ -1,12 +1,14 @@
 name: ai-skills
 version: 1.0.0
-description: Lucas's reusable agent skills, shared across projects via apm
-author: Lucas Girouard-Stranks
+type: hybrid
+description: "@lithiumtoast's reusable AI agent skills, packaged with apm (Agent Package Manager), portable across Claude, Copilot, Cursor, and more."
+author:
+  name: Lucas Girouard-Stranks
+  url: https://github.com/lithiumtoast
 # Which agent platforms to deploy to (uncomment to pin):
 # targets:
 #   - copilot
 #   - claude
-
 dependencies:
   apm: []
   mcp: []
