@@ -1,7 +1,7 @@
 # Commit message style
 
 Reference for [../SKILL.md](../SKILL.md). Conventional Commits subject, Linus-style
-body. Load this when drafting the message at Gate 2.
+body. Load this when drafting a commit message.
 
 ## Contents
 
@@ -35,6 +35,9 @@ split it.
 ## Common type confusions
 
 - *`feat` vs `fix`*: `feat` adds new behavior; `fix` corrects existing behavior.
+- *`feat` vs `refactor`*: `feat` changes observable behavior; `refactor`
+  restructures without changing it. A change that alters how something behaves
+  is not a refactor, even when it edits a single file.
 - *`refactor` vs `style`*: `refactor` changes structure; `style` only changes
   whitespace or formatting with no structural change.
 - *`chore` vs `build`*: `build` is specifically build and dependency files;
