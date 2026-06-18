@@ -20,15 +20,6 @@ ai-skills/
             └── examples/         # optional: samples
 ```
 
-## Authoring a new skill
-
-1. Create `.apm/skills/<skill-name>/SKILL.md`.
-2. Frontmatter needs `name` (must equal the folder name) and `description`.
-   Write the description as a trigger — start with "Use when …".
-3. Keep `SKILL.md` under ~500 lines / 5000 tokens; push long content into
-   `references/` and reference it with `LOAD references/<file>.md`.
-4. Commit and push.
-
 ## Using these skills in a project
 
 Install from GitHub and deploy to Claude Code:
