@@ -1,0 +1,10 @@
+# apm package cache (only present if this repo gains its own dependencies)
+apm_modules/
+
+# harness output dirs, in case `apm install` is ever run inside this repo
+.claude/
+.github/copilot/
+.agents/
+
+# macOS
+.DS_Store
