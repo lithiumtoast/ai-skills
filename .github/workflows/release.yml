@@ -1,0 +1,92 @@
+name: Validate and release
+
+# Validate the apm package on every PR and push to main, then cut a release
+# when the version in apm.yml has no matching git tag yet. The manifest version
+# is the single source of truth: bump version in apm.yml, merge to main, and the
+# tag plus GitHub Release are created automatically. Re-running on an unchanged
+# version is a no-op.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Installs the apm CLI and puts it on PATH; setup-only skips `apm install`.
+      # The action is pinned to a commit SHA for supply-chain safety, with the
+      # human-readable action version in the comment. Note the two distinct
+      # versions: the action (v1.9.1) and the apm CLI it installs (0.20.0). Bump
+      # apm-version alongside apm.yml when you upgrade apm.
+      - name: Install apm
+        uses: microsoft/apm-action@e5650fb81c4b5965090a17bd1ed1956071e95d17 # v1.9.1
+        with:
+          setup-only: "true"
+          apm-version: "0.20.0"
+
+      - name: Show apm version
+        run: apm --version
+
+      # Parses apm.yml and resolves deploy targets; fails on a broken manifest.
+      - name: Validate manifest and targets
+        run: apm targets
+
+      # Confirms the package can be packed for distribution without writing or
+      # touching the network.
+      - name: Validate packaging
+        run: apm pack --dry-run --offline
+
+  release:
+    needs: validate
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version from apm.yml
+        id: ver
+        run: |
+          version="$(grep -E '^version:' apm.yml | head -n1 \
+            | sed -E 's/^version:[[:space:]]*//; s/[[:space:]]*#.*$//' \
+            | tr -d " \"'")"
+          if [ -z "$version" ]; then
+            echo "::error::Could not read version from apm.yml"
+            exit 1
+          fi
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          echo "Manifest version: $version (tag v$version)"
+
+      - name: Create tag and release if it does not exist
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ steps.ver.outputs.tag }}"
+          if git rev-parse "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "Tag $tag already exists; nothing to release."
+            exit 0
+          fi
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists; nothing to release."
+            exit 0
+          fi
+          echo "Cutting release $tag at $GITHUB_SHA"
+          gh release create "$tag" \
+            --target "$GITHUB_SHA" \
+            --title "$tag" \
+            --generate-notes
